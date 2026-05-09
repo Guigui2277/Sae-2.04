@@ -9,7 +9,7 @@ set schema 'parcoursup';
 drop table if exists _academie;
 create table _academie (
 
-  academie_nom varchar(30),
+  academie_nom varchar(50),
   
   constraint _academie_pk primary key(academie_nom)
 );
@@ -19,10 +19,10 @@ drop table if exists _filiere;
 create table _filiere(
   
   filiere_id int,
-  filiere_libele varchar(30),
+  filiere_libele varchar(180),
   filiere_libele_tres_abrege varchar(30),
-  filiere_libele_abrege varchar(30),
-  filiere_libele_detaille_bis varchar(30),
+  filiere_libele_abrege varchar(80),
+  filiere_libele_detaille_bis varchar(130),
   
   constraint _filiere_pk primary key(filiere_id)
 );
@@ -31,24 +31,24 @@ drop table if exists _etablissement;
 create table _etablissement (
 
   etablissement_code_uai char(8),
-  etablissement_nom varchar(30),
-  etablissement_statut varchar(30),
+  etablissement_nom varchar(180),
+  etablissement_statut varchar(40),
   
   constraint _etablissement_pk primary key(etablissement_code_uai)
 );
 
 drop table if exists _region;
 create table _region(
-  region_nom varchar(40),
+  region_nom varchar(30),
   
   constraint _region_pk primary key(region_nom)
 ); 
 
 drop table if exists _departement;
 create table _departement(
-  departement_code varchar(40),
+  departement_code char(2),
+  region_nom varchar(30) not null,
   departement_nom varchar(40),
-  region_nom varchar(40),
 
   constraint _departement_pk primary key(departement_code),
   
@@ -58,8 +58,8 @@ create table _departement(
 drop table if exists _commune;
 create table _commune(
   id_commune serial,
-  commune_nom varchar(40),
-  departement_code varchar(40),
+  departement_code char(2) not null,
+  commune_nom varchar(130),
 
   constraint _commune_pk primary key(id_commune),
   
@@ -69,19 +69,18 @@ create table _commune(
 drop table if exists _formation;
 create table _formation (
 
-  cod_aff_form varchar(30),
-  filliere_libele_detaille varchar(30),
-  coordonnees_gps varchar(30),
-  list_com varchar(30),
-  concours_communs_banque_epreuve varchar(30),
-  url_formation varchar(30),
-  tri varchar(30),
-  academie_nom varchar(30),
+  cod_aff_form varchar(10),
+  academie_nom varchar(50),
   filiere_id int,
   etablissement_code_uai char(8),
-  id_commune int,
-  
-  
+  id_commune int not null, --A PRECISER AU PROF
+  filiere_libele_detaille varchar(220),
+  coordonnees_gps varchar(30),
+  list_com varchar(50),
+  concours_communs_banque_epreuve varchar(50),
+  url_formation varchar(100),
+  tri varchar(30),
+
   constraint _formation_pk primary key(cod_aff_form),
   
   constraint _formation_fk_academie 
@@ -101,9 +100,9 @@ create table _formation (
 
 drop table if exists _regroupement;
 create table _regroupement(
-  libele_regroupement varchar(40),
+  libelle_regroupement varchar(100),
   
-  constraint _formation_pk primary key(cod_aff_form)
+  constraint _regroupement_pk primary key(libelle_regroupement)
 );
 
 drop table if exists _session;
@@ -117,86 +116,100 @@ create table _session(
 
 drop table if exists _rang_dernier_appele_selon_regroupement;
 create table _rang_dernier_appele_selon_regroupement(
+  cod_aff_form varchar(10),
+  libelle_regroupement varchar(100),
   session_annee int,
-  cod_aff_form varchar(30),
-  libele_regroupement varchar(40),
-  session_annee int,
+  rang_dernier_appele int,
   
   constraint _rang_dernier_appele_selon_regroupement_fk_formation
-  foreign key (cod_aff_form) references _rang_dernier_appele_selon_regroupement(cod_aff_form),
+  foreign key (cod_aff_form) references _formation(cod_aff_form),
   
   constraint _rang_dernier_appele_selon_regroupement_fk_regroupement
-  foreign key (libele_regroupement) references _rang_dernier_appele_selon_regroupement(libele_regroupement),
+  foreign key (libelle_regroupement) references _regroupement(libelle_regroupement),
 
   constraint _rang_dernier_appele_selon_regroupement_fk_session
-  foreign key (session_annee) references _rang_dernier_appele_selon_regroupement(session_annee)
+  foreign key (session_annee) references _session(session_annee)
 );
    
-drop table if exists _admissions_generalite;
+drop table if exists _admissions_generalites;
 create table _admissions_generalites(
+  cod_aff_form varchar(10),
+  session_annee int,
   selectivite varchar(100),
   capacite int,
   effectif_total_candidats int,
   effectif_total_candidates int,
-  cod_aff_form varchar(30),
-  session_annee int,
   
   constraint _admissions_generalites_fk_formation
-  foreign key (cod_aff_form) references _admissions_generalites(cod_aff_form),
+  foreign key (cod_aff_form) references _formation(cod_aff_form),
 
   constraint _admissions_generalites_fk_session
-  foreign key (session_annee) references _admissions_generalites(session_annee)
+  foreign key (session_annee) references _session(session_annee)
 );
 
 ---------------------------------
 
 drop table if exists _type_bac;
 create table _type_bac(
-  type_bac varchar(30),
+  type_bac varchar(100),
   
   constraint _type_bac_pk primary key(type_bac)
 );
 
 drop table if exists _admissions_selon_type_neo_bac;
 create table _admissions_selon_type_neo_bac(
-  effectif_admis_neo_bac_selon_mention int,
-  type_bac varchar(30),
-  cod_aff_form varchar(30),
+  cod_aff_form varchar(10),
   session_annee int,
+  type_bac varchar(100),
+  effectif_admis_neo_bac_classes int,
   
   constraint _admissions_selon_type_neo_bac_fk_formation
-  foreign key (cod_aff_form) references _admissions_selon_type_neo_bac(cod_aff_form),
+  foreign key (cod_aff_form) references _formation(cod_aff_form),
 
   constraint _admissions_selon_type_neo_bac_fk_session
-  foreign key (session_annee) references _admissions_selon_type_neo_bac(session_annee),
+  foreign key (session_annee) references _session(session_annee),
 
   constraint _admissions_selon_type_neo_bac_fk_type_bac
-  foreign key (type_bac) references _admissions_selon_type_neo_bac(type_bac)
+  foreign key (type_bac) references _type_bac(type_bac)
 );
 
 --------
 
 drop table if exists _mention_bac;
 create table _mention_bac(
-  libelle_mention varchar(30),
+  libelle_mention varchar(50),
   
   constraint _mention_bac_pk primary key(libelle_mention)
 );
 
 drop table if exists _effectif_selon_mention;
 create table _effectif_selon_mention(
-  effectif_admis_neo_bac_selon_mention int,
-  libelle_mention varchar(40),
-  cod_aff_form varchar(30),
+  cod_aff_form varchar(10),
   session_annee int,
+  libelle_mention varchar(50),
+  effectif_admis_neo_bac_selon_mention int,
   
   constraint _effectif_selon_mention_fk_formation
-  foreign key (cod_aff_form) references _effectif_selon_mention(cod_aff_form),
+  foreign key (cod_aff_form) references _formation(cod_aff_form),
 
   constraint _effectif_selon_mention_fk_session
-  foreign key (session_annee) references _effectif_selon_mention(session_annee),
+  foreign key (session_annee) references _session(session_annee),
 
   constraint _effectif_selon_mention_fk_mention_bac
-  foreign key (libelle_mention) references _effectif_selon_mention(libelle_mention)
+  foreign key (libelle_mention) references _mention_bac(libelle_mention)
 );
+
+insert into _type_bac values
+  ('Bac général'),
+  ('Bac technologique'),
+  ('Bac professionnel'),
+  ('Autres');
+  
+insert into _mention_bac values
+  ('Sans information'),
+  ('Sans mention'),
+  ('Assez bien'),
+  ('Bien'),
+  ('Très bien'),
+  ('Très bien avec les félicitations du jury');
 
