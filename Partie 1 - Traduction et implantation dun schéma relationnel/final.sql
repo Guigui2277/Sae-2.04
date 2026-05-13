@@ -165,9 +165,10 @@ create table _admissions_generalites(
 
 drop table if exists _type_bac;
 create table _type_bac(
-  type_bac varchar(100),
+  type_bac varchar(100) not null,
   
-  constraint _type_bac_pk primary key(type_bac)
+  constraint _type_bac_pk primary key(type_bac),
+  constraint check type_bac in ('Bac général','Bac technologique','Bac professionnel','Autres')
 );
 
 drop table if exists _admissions_selon_type_neo_bac;
@@ -205,9 +206,10 @@ create table _admissions_selon_type_neo_bac(
 
 drop table if exists _mention_bac;
 create table _mention_bac(
-  libelle_mention varchar(50),
-  
-  constraint _mention_bac_pk primary key(libelle_mention)
+  libelle_mention varchar(50) not null,
+    
+  constraint _mention_bac_pk primary key(libelle_mention),
+  constraint check libelle_mention in ('Sans information','Sans mention','Assez bien','Bien','Très bien','Très bien avec félicitations du jury')
 );
 
 drop table if exists _effectif_selon_mention;
