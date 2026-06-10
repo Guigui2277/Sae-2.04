@@ -9,7 +9,7 @@ set schema 'parcoursup';
 drop table if exists _academie;
 create table _academie (
 
-  academie_nom varchar(50) not null,
+  academie_nom varchar(50),
   
   constraint _academie_pk primary key(academie_nom)
 );
@@ -18,12 +18,11 @@ create table _academie (
 drop table if exists _filiere;
 create table _filiere(
   
-  filiere_id int not null,
+  filiere_id int,
   filiere_libele varchar(180),
   filiere_libele_tres_abrege varchar(30),
   filiere_libele_abrege varchar(80),
   filiere_libele_detaille_bis varchar(130),
-  filiere_libelle_tres_detaille varchar(230),
   
   constraint _filiere_pk primary key(filiere_id)
 );
@@ -31,7 +30,7 @@ create table _filiere(
 drop table if exists _etablissement;
 create table _etablissement (
 
-  etablissement_code_uai char(8) not null,
+  etablissement_code_uai char(8),
   etablissement_nom varchar(180),
   etablissement_statut varchar(40),
   
@@ -40,15 +39,15 @@ create table _etablissement (
 
 drop table if exists _region;
 create table _region(
-  region_nom varchar(30) not null,
+  region_nom varchar(30),
   
   constraint _region_pk primary key(region_nom)
 ); 
 
 drop table if exists _departement;
 create table _departement(
-  departement_code char(2) not null,
-  region_nom varchar(30),
+  departement_code char(2),
+  region_nom varchar(30) not null,
   departement_nom varchar(40),
 
   constraint _departement_pk primary key(departement_code),
@@ -70,11 +69,11 @@ create table _commune(
 drop table if exists _formation;
 create table _formation (
 
-  cod_aff_form varchar(10) ,
+  cod_aff_form varchar(10),
   academie_nom varchar(50),
   filiere_id int,
   etablissement_code_uai char(8),
-  id_commune int, --A PRECISER AU PROF
+  id_commune int not null, --A PRECISER AU PROF
   filiere_libele_detaille varchar(220),
   coordonnees_gps varchar(30),
   list_com varchar(50),
@@ -120,13 +119,7 @@ create table _rang_dernier_appele_selon_regroupement(
   cod_aff_form varchar(10),
   libelle_regroupement varchar(100),
   session_annee int,
-  regroupement_1 int,
-  rang_dernier_appele_groupe1 int,
-  regroupement_2 int,
-  rang_dernier_appele_groupe2 int,
-  regroupement_3 int,
-  rang_dernier_appele_groupe3 int,
-
+  rang_dernier_appele int,
   
   constraint _rang_dernier_appele_selon_regroupement_fk_formation
   foreign key (cod_aff_form) references _formation(cod_aff_form),
@@ -146,14 +139,7 @@ create table _admissions_generalites(
   capacite int,
   effectif_total_candidats int,
   effectif_total_candidates int,
-  effectif_total_proposition_admission int,
-  effectif_total_admis int,
-  effectif_total_admises int,
-  effectif_admis_meme_etablissement int,
-  effectif_admises_meme_etablissement int,
-  effectif_admis_meme_academie int,
-  effectif_admis_meme_academie_pcv int,
-
+  
   constraint _admissions_generalites_fk_formation
   foreign key (cod_aff_form) references _formation(cod_aff_form),
 
@@ -165,10 +151,9 @@ create table _admissions_generalites(
 
 drop table if exists _type_bac;
 create table _type_bac(
-  type_bac varchar(100) not null,
+  type_bac varchar(100),
   
-  constraint _type_bac_pk primary key(type_bac),
-  constraint _verif_type_bac check (type_bac in ('Bac général','Bac technologique','Bac professionnel','Autres'))
+  constraint _type_bac_pk primary key(type_bac)
 );
 
 drop table if exists _admissions_selon_type_neo_bac;
@@ -176,21 +161,7 @@ create table _admissions_selon_type_neo_bac(
   cod_aff_form varchar(10),
   session_annee int,
   type_bac varchar(100),
-  effectif_candidats_neo_bac_classes_type_general int,
-  effectif_candidats_neo_bac_boursiers_classes_type_general int,
-  effectif_candidats_neo_bac_classes_type_techno int,
-  effectif_candidats_neo_bac_boursiers_classes_type_techno int,
-  effectif_candidats_neo_bac_classes_type_pro int,
-  effectif_candidats_neo_bac_boursiers_classes_type_pro int,
-  effectif_candidats_classes_type_autres int,
-  effectif_total_admis_boursiers_neo_bac int,
-  effectif_total_admis_neo_bac int,
-  effectif_admis_neo_bac_type_general int,
-  effectif_admis_neo_bac_type_techno int,
-  effectif_admis_neo_bac_type_pro int,
-  effectif_admis_neo_bac_type_autres int,
-
-
+  effectif_admis_neo_bac_classes int,
   
   constraint _admissions_selon_type_neo_bac_fk_formation
   foreign key (cod_aff_form) references _formation(cod_aff_form),
@@ -206,10 +177,9 @@ create table _admissions_selon_type_neo_bac(
 
 drop table if exists _mention_bac;
 create table _mention_bac(
-  libelle_mention varchar(50) not null,
-    
-  constraint _mention_bac_pk primary key(libelle_mention),
-  constraint _verif_libelle_mention check (libelle_mention in ('Sans information','Sans mention','Assez bien','Bien','Très bien','Très bien avec félicitations du jury'))
+  libelle_mention varchar(50),
+  
+  constraint _mention_bac_pk primary key(libelle_mention)
 );
 
 drop table if exists _effectif_selon_mention;
@@ -218,17 +188,7 @@ create table _effectif_selon_mention(
   session_annee int,
   libelle_mention varchar(50),
   effectif_admis_neo_bac_selon_mention int,
-  effectif_candidats_neo_bac_classes_type_general int,
-  effectif_admis_neo_bac_selon_mention_type_mention_sans_info int,
-  effectif_admis_neo_bac_selon_mention_type_mention_sans_mention int,
-  effectif_admis_neo_bac_selon_mention_type_mention_assez_bien int,
-  effectif_admis_neo_bac_selon_mention_type_mention_bien int,
-  effectif_admis_neo_bac_selon_mention_type_mention_tres_bien int,
-  effectif_admis_neo_bac_selon_mention_type_mention_tres_bien_fel int,
-  effectif_admis_neo_bac_avec_mention_type_bac_general int,
-  effectif_admis_neo_bac_avec_mention_type_bac_techno int,
-  effectif_admis_neo_bac_avec_mention_type_bac_pro int,
-
+  
   constraint _effectif_selon_mention_fk_formation
   foreign key (cod_aff_form) references _formation(cod_aff_form),
 
@@ -238,4 +198,18 @@ create table _effectif_selon_mention(
   constraint _effectif_selon_mention_fk_mention_bac
   foreign key (libelle_mention) references _mention_bac(libelle_mention)
 );
+
+insert into _type_bac values
+  ('Bac général'),
+  ('Bac technologique'),
+  ('Bac professionnel'),
+  ('Autres');
+  
+insert into _mention_bac values
+  ('Sans information'),
+  ('Sans mention'),
+  ('Assez bien'),
+  ('Bien'),
+  ('Très bien'),
+  ('Très bien avec les félicitations du jury');
 

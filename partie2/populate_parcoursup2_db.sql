@@ -4,30 +4,30 @@ set schema 'parcoursup2';
 -- TABLE temporaire
 drop table if exists import_data;
 create table import_data(
-  session_annee                                                                   numeric(4)    not null, --fait
-  etablissement_statut                                                            varchar(40)   not null, --fait
-  etablissement_code_uai                                                          varchar(10)   not null, --fait
-  etablissement_nom                                                               varchar(150)  not null,--fait
-  departement_code                                                                varchar(3)    not null, --fait
-  departement_nom                                                                 varchar(50)   not null, --fait
-  region_nom                                                                      varchar(50)   not null, --fait
-  academie_nom                                                                    varchar(50)   not null, --fait
-  commune_nom                                                                     varchar(50)   not null, --fait
-  filiere_libelle                                                                 varchar(400)  not null, --fait
-  selectivite                                                                     varchar(30)   not null, --fait
-  filiere_libelle_tres_abrege                                                     varchar(30)   not null, --fait
-  filiere_libelle_detaille                                                        varchar(400)  not null, --fait
-  filiere_libelle_abrege                                                          varchar(100)  not null, --fait
-  filiere_libelle_detaille_bis                                                    varchar(150)  not null, --fait
+  session_annee                                                                   numeric(4)    not null,
+  etablissement_statut                                                            varchar(40)   not null,
+  etablissement_code_uai                                                          varchar(10)   not null, 
+  etablissement_nom                                                               varchar(150)  not null,
+  departement_code                                                                varchar(3)    not null,
+  departement_nom                                                                 varchar(50)   not null, 
+  region_nom                                                                      varchar(50)   not null, 
+  academie_nom                                                                    varchar(50)   not null, 
+  commune_nom                                                                     varchar(50)   not null,
+  filiere_libelle                                                                 varchar(400)  not null, 
+  selectivite                                                                     varchar(30)   not null, 
+  filiere_libelle_tres_abrege                                                     varchar(30)   not null, 
+  filiere_libelle_detaille                                                        varchar(400)  not null, 
+  filiere_libelle_abrege                                                          varchar(100)  not null,
+  filiere_libelle_detaille_bis                                                    varchar(150)  not null,
   filiere_libelle_tres_detaille                                                   varchar(400), -- peut être vide
-  coordonnees_gps                                                                 varchar(30)   not null, --fait
-  capacite                                                                        integer       not null, --fait
-  effectif_total_candidats                                                        integer       not null, --fait
-  effectif_total_candidates                                                       integer       not null, --fait
-  effectif_candidat_neo_bac_classes_type_general                                  integer       not null, --fait
-  effectif_candidat_neo_bac_classes_type_techno                                   integer       not null, --fait
-  effectif_candidat_neo_bac_classes_type_pro                                      integer       not null, --fait
-  effectif_candidat_classes_type_autres                                           integer       not null, --fait
+  coordonnees_gps                                                                 varchar(30)   not null, 
+  capacite                                                                        integer       not null, 
+  effectif_total_candidats                                                        integer       not null, 
+  effectif_total_candidates                                                       integer       not null,
+  effectif_candidat_neo_bac_classes_type_general                                  integer       not null, 
+  effectif_candidat_neo_bac_classes_type_techno                                   integer       not null, 
+  effectif_candidat_neo_bac_classes_type_pro                                      integer       not null,  
+  effectif_candidat_classes_type_autres                                           integer       not null,
   effectif_admis_neo_bac_type_general                                             integer       not null, -- effectif_admis_neo_bac type_bac = general
   effectif_admis_neo_bac_type_techno                                              integer       not null, -- effectif_admis_neo_bac type_bac = techno
   effectif_admis_neo_bac_type_pro                                                 integer       not null, -- effectif_admis_neo_bac type_bac = pro
@@ -47,11 +47,11 @@ create table import_data(
   rang_dernier_appele_groupe2                                                     integer,
   regroupement_3                                                                  varchar(100), 
   rang_dernier_appele_groupe3                                                     integer,
-  list_com                                                                        varchar(60)   not null,  --fait
-  tri                                                                             varchar(200)   not null, --fait
-  cod_aff_form                                                                    varchar(200)   not null, --fait
-  concours_communs_banques_epreuves                                               varchar(100), --fait
-  url_formation                                                                   varchar(150) --fait
+  list_com                                                                        varchar(60)   not null, 
+  tri                                                                             varchar(20)   not null, 
+  cod_aff_form                                                                    varchar(20)   not null,
+  concours_communs_banques_epreuves                                               varchar(100),
+  url_formation                                                                   varchar(150)
 );
 
 -- IMPORT de toutes les données utilisées
@@ -146,116 +146,3 @@ WbImport -file=./fr-esr-parcoursup_2022.csv
                       regroupement_3, rang_dernier_appele_groupe3,
                       list_com, tri, cod_aff_form, concours_communs_banques_epreuves, url_formation;
 --         -keyColumns=etablissement_code_UAI;
-
-
--- ======== Début de l'insertion des données ============ --
-insert into _academie
-select distinct academie_nom from import_data;
-
-insert into _region
-select distinct region_nom from import_data;
-
-insert into _departement
-select distinct departement_code, departement_nom, region_nom from import_data;
-
-insert into _commune
-select distinct commune_nom, departement_code from import_data;
-
-insert into _etablissement
-select distinct etablissement_code_uai, etablissement_nom, etablissement_statut from import_data;
-
-insert into _filiere(filiere_libelle, filiere_libelle_tres_abrege, filiere_libelle_abrege, filiere_libelle_detaille_bis)
-select distinct filiere_libelle, filiere_libelle_tres_abrege, filiere_libelle_abrege, filiere_libelle_detaille_bis from import_data;
-
--- Ici, filiere_id requiert un join entre _filiere et import_data
--- Nous faisons 4 jointures pour garantir l'unicité des données (en particulier sur cod_aff_form : PK)
-insert into _formation
-select distinct on (i1.cod_aff_form)
-       i1.filiere_libelle_detaille, 
-       i1.coordonnees_gps, 
-       i1.list_com, 
-       i1.cod_aff_form, 
-       i1.tri, 
-       i1.concours_communs_banques_epreuves, 
-       i1.url_formation, 
-       f1.filiere_id, 
-       i1.etablissement_code_uai, 
-       i1.commune_nom, 
-       i1.departement_code, 
-       i1.academie_nom 
-       from import_data i1
-       join _filiere f1 on i1.filiere_libelle = f1.filiere_libelle
-                        and i1.filiere_libelle_tres_abrege = f1.filiere_libelle_tres_abrege
-                        and i1.filiere_libelle_abrege = f1.filiere_libelle_abrege
-                        and i1.filiere_libelle_detaille_bis = f1.filiere_libelle_detaille_bis;
-
-select * from _formation
-order by filiere_id;
-
--- Une seule valeur : 2022 --
-insert into _session
-select distinct session_annee from import_data;
-
--- il n'y a que quelques valeurs fixes pour _mention_bac et _type_bac comme indiquée dans le premier pdf
--- la présence inexistante de leurs attributs dans la table import_data confirme cette règle.
-insert into _mention_bac values
-  ('Sans information'),
-  ('Sans mention'),
-  ('Assez bien'),
-  ('Bien'),
-  ('Très bien'),
-  ('Très bien avec les félicitations du jury');
-  
-insert into _type_bac values
-  ('Bac général'),
-  ('Bac technologique'),
-  ('Bac professionnel'),
-  ('Autres');
-
--- On insère ici les différents regroupements (toujours en supprimant les doublons pour la foreign key)
--- la particularité ici est que l'on va retirer les null qui ne servent a rien pour notre table et sont obligatoires.
-insert into _regroupement
-select distinct regroupement_1 from import_data where regroupement_1 is not null
-union select distinct regroupement_2 from import_data where regroupement_2 is not null
-union select distinct regroupement_3 from import_data where regroupement_3 is not null;
-
-
-insert into _admissions_generalites(cod_aff_form, session_annee, selectivite, capacite, effectif_total_candidats, effectif_total_candidates)
-select distinct cod_aff_form, 
-                session_annee, 
-                selectivite, 
-                capacite, 
-                effectif_total_candidats, 
-                effectif_total_candidates 
-                from import_data;
-
-
-
-
-
-
---il reste cela a faire
-insert into _admissions_selon_type_neo_bac(cod_aff_form, session_annee, type_bac, effectif_candidat_neo_bac_classes)
-select distinct cod_aff_form,
-                session_annee,
-                type_bac, -- il faut que je regarde
-                effectif_candidat_neo_bac_classes_type_general from import_data where effectif_candidat_neo_bac_classes_type_general is not null
-union select effectif_candidat_neo_bac_classes_type_techno from import_data where effectif_candidat_neo_bac_classes_type_techno is not null
-union select effectif_candidat_neo_bac_classes_type_pro from import_data where effectif_candidat_neo_bac_classes_type_pro is not null
-union select effectif_candidat_classes_type_autres from import_data where effectif_candidat_classes_type_autres is not null;
-
-insert into _effectif_selon_mention(effectif_admis_neo_bac_selon_mention)
-select effectif_admis_neo_bac_type_general, effectif_admis_neo_bac_selon_mention_type_mention_sans_info, effectif_admis_neo_bac_selon_mention_type_mention_sans_mention, effectif_admis_neo_bac_selon_mention_type_mention_assez_bien, effectif_admis_neo_bac_selon_mention_type_mention_bien, 
-        effectif_admis_neo_bac_selon_mention_type_mention_tres_bien, effectif_admis_neo_bac_selon_mention_type_mention_tres_bien_fel, effectif_admis_neo_bac_avec_mention_type_bac_general, effectif_admis_neo_bac_avec_mention_type_bac_techno, effectif_admis_neo_bac_avec_mention_type_bac_pro from import_data;
-        
-insert into _rang_dernier_appele_selon_regroupement
-select distinct i1.cod_aff_form,
-                i1.session_annee,
-                r1.libelle_regroupement,
-                rang_dernier_appele_groupe1 from import_data
-                union select distinct rang_dernier_appele_groupe2 from import_data
-                union select rang_dernier_appele_groupe3 from import_data
-                join _regroupement on ;
-
---####IMPORTANT : Suppression de la table
-drop table import_data;

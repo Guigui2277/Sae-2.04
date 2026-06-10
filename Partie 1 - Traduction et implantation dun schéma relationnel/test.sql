@@ -70,7 +70,7 @@ create table _commune(
 drop table if exists _formation;
 create table _formation (
 
-  cod_aff_form varchar(10) ,
+  cod_aff_form varchar(10),
   academie_nom varchar(50),
   filiere_id int,
   etablissement_code_uai char(8),
@@ -140,7 +140,7 @@ create table _rang_dernier_appele_selon_regroupement(
    
 drop table if exists _admissions_generalites;
 create table _admissions_generalites(
-  cod_aff_form varchar(10),
+  cod_aff_form varchar(10) not null,
   session_annee int,
   selectivite varchar(100),
   capacite int,
@@ -239,3 +239,12 @@ create table _effectif_selon_mention(
   foreign key (libelle_mention) references _mention_bac(libelle_mention)
 );
 
+
+Wbimport
+-mode=insert
+-file=fr-esr-parcoursup_2022.csv
+-header=false
+-table=personnel
+-schema='distribill2'
+-fileColumns=matr,nome,sal,poste,dateemb,comm,mondept
+-dateFormat='yyyy-MM-dd';
