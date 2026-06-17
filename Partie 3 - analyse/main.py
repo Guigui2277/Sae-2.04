@@ -9,6 +9,6 @@ var_endo = fileBase[["Sélectivité"]]
 
 matr_expl = var_expl.to_numpy()
 
-print(matr_expl)
-matr_expl
+print(matr_expl[:,2])
+
 
