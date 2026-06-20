@@ -8,3 +8,9 @@ Ce projet contient nos différents fichiers et scripts pour la création et l'ex
 ### Partie 2 : contient le script de création fourni par l'IUT et le script de peuplement réalisée.
 
 ### Partie 3 : Actuellement en cours - indisponible.
+variable endogène : Séléctivité
+
+variable explicative : 
+- code départementale de l'établissement
+- capacité de l'établissement
+- nombre de personnes avec mention
